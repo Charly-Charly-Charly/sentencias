@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests"
+    />
+    <meta name="referrer" content="no-referrer" />
+    <title>Listado Institucional de Sentencias</title>
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="./favicon_16x16.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./favicon_32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="48x48"
+      href="./favicon_48x48.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="64x64"
+      href="./favicon_64x64.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="128x128"
+      href="./favicon_128x128.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="256x256"
+      href="./favicon_256x256.png"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-grid">
+        <div>
+          <p class="eyebrow">Portal institucional</p>
+          <h1>Listado de Sentencias</h1>
+          <p class="lead">
+            Consulta las 19 sentencias, sus documentos asociados y el estado de
+            medidas de cumplimiento.
+          </p>
+        </div>
+      </div>
+    </header>
+
+    <main id="contenido" class="container main-section">
+      <section aria-labelledby="titulo-listado">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow dark">Gestión documental</p>
+            <h2 id="titulo-listado">Sentencias registradas</h2>
+          </div>
+          <p class="count" id="contadorSentencias">0 sentencias</p>
+        </div>
+
+        <div id="listaSentencias" class="cards-grid" aria-live="polite"></div>
+
+        <noscript>
+          <p class="notice">
+            Para visualizar los detalles en popup, activa JavaScript en tu
+            navegador.
+          </p>
+        </noscript>
+      </section>
+    </main>
+
+    <div id="modalBackdrop" class="modal-backdrop" hidden></div>
+
+    <section
+      id="modalSentencia"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitulo"
+      aria-describedby="modalDescripcion"
+      hidden
+    >
+      <div class="modal-panel" tabindex="-1">
+        <button
+          type="button"
+          class="modal-close"
+          id="cerrarModal"
+          aria-label="Cerrar popup"
+        >
+          ×
+        </button>
+
+        <div class="modal-header">
+          <p class="eyebrow dark">Detalle de sentencia</p>
+          <h2 id="modalTitulo"></h2>
+          <p id="modalFecha" class="modal-date"></p>
+        </div>
+
+        <div class="modal-body">
+          <article class="detail-block">
+            <h3>Breve resumen</h3>
+            <p id="modalDescripcion"></p>
+          </article>
+
+          <article class="detail-block">
+            <h3>Medida de cumplimiento de búsqueda</h3>
+            <p id="modalMedida"></p>
+          </article>
+
+          <article class="detail-block">
+            <h3>Párrafo</h3>
+            <p id="modalParrafo"></p>
+          </article>
+
+          <div class="modal-actions" aria-label="Documentos vinculados">
+            <a
+              id="linkSentencia"
+              class="btn btn-primary"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ver sentencia
+            </a>
+            <a
+              id="linkRealizado"
+              class="btn btn-secondary"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Cumplimientos realizados
+            </a>
+            <a
+              id="linkPendiente"
+              class="btn btn-outline"
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Cumplimientos pendientes
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p></p>
+      </div>
+    </footer>
+
+    <script src="./script.js" defer></script>
+  </body>
+</html>
