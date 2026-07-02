@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests"
+      content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; worker-src 'none'; child-src 'none'; upgrade-insecure-requests"
     />
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin" />
+    <meta http-equiv="Cross-Origin-Resource-Policy" content="same-origin" />
     <meta name="referrer" content="no-referrer" />
     <title>Listado Institucional de Sentencias</title>
     <link
@@ -52,10 +54,11 @@
       <div class="container header-grid">
         <div>
           <p class="eyebrow">Portal institucional</p>
-          <h1>Listado de Sentencias</h1>
+          <h1>Listado de Sentencias en Búsqueda e Investigación</h1>
           <p class="lead">
-            Consulta las 19 sentencias, sus documentos asociados y el estado de
-            medidas de cumplimiento.
+            Consulta de sentencias del Sistema Interamericano de Derechos
+            Humanos (SIDH) y su cumplimiento por parte de los Estados en materia
+            de busqueda e investigación.
           </p>
         </div>
       </div>
@@ -69,6 +72,33 @@
             <h2 id="titulo-listado">Sentencias registradas</h2>
           </div>
           <p class="count" id="contadorSentencias">0 sentencias</p>
+        </div>
+
+        <div class="filters" role="group" aria-label="Filtrar sentencias">
+          <button
+            type="button"
+            class="filter-chip is-active"
+            data-filter="todos"
+            aria-pressed="true"
+          >
+            Todos
+          </button>
+          <button
+            type="button"
+            class="filter-chip"
+            data-filter="busqueda"
+            aria-pressed="false"
+          >
+            Búsqueda
+          </button>
+          <button
+            type="button"
+            class="filter-chip"
+            data-filter="investigacion"
+            aria-pressed="false"
+          >
+            Investigación
+          </button>
         </div>
 
         <div id="listaSentencias" class="cards-grid" aria-live="polite"></div>
@@ -107,6 +137,7 @@
           <p class="eyebrow dark">Detalle de sentencia</p>
           <h2 id="modalTitulo"></h2>
           <p id="modalFecha" class="modal-date"></p>
+          <div id="modalBadges" class="modal-badges"></div>
         </div>
 
         <div class="modal-body">
@@ -116,12 +147,12 @@
           </article>
 
           <article class="detail-block">
-            <h3>Medida de cumplimiento de búsqueda</h3>
+            <h3>Medidas de cumplimientos</h3>
             <p id="modalMedida"></p>
           </article>
 
           <article class="detail-block">
-            <h3>Párrafo</h3>
+            <h3>Párrafos Mencionados</h3>
             <p id="modalParrafo"></p>
           </article>
 

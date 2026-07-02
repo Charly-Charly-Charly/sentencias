@@ -8,6 +8,7 @@ const CONFIG = {
 const state = {
   sentencias: [],
   lastFocusedElement: null,
+  filtroActivo: "todos",
 };
 
 const dom = {
@@ -19,6 +20,7 @@ const dom = {
   modalPanel: document.querySelector(".modal-panel"),
   titulo: document.getElementById("modalTitulo"),
   fecha: document.getElementById("modalFecha"),
+  badges: document.getElementById("modalBadges"),
   descripcion: document.getElementById("modalDescripcion"),
   medida: document.getElementById("modalMedida"),
   parrafo: document.getElementById("modalParrafo"),
@@ -26,21 +28,38 @@ const dom = {
   linkRealizado: document.getElementById("linkRealizado"),
   linkPendiente: document.getElementById("linkPendiente"),
   parrafos: document.getElementById("modalParrafos"),
+  filtros: document.querySelectorAll(".filter-chip"),
 };
 
 document.addEventListener("DOMContentLoaded", iniciar);
-dom.cerrar.addEventListener("click", cerrarModal);
-dom.backdrop.addEventListener("click", cerrarModal);
 
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !dom.modal.hidden) {
-    cerrarModal();
-  }
+if (dom.filtros.length > 0) {
+  dom.filtros.forEach((boton) => {
+    boton.addEventListener("click", () => {
+      aplicarFiltro(boton.dataset.filter || "todos");
+    });
+  });
+}
 
-  if (event.key === "Tab" && !dom.modal.hidden) {
-    controlarFocoModal(event);
-  }
-});
+if (dom.cerrar) {
+  dom.cerrar.addEventListener("click", cerrarModal);
+}
+
+if (dom.backdrop) {
+  dom.backdrop.addEventListener("click", cerrarModal);
+}
+
+if (dom.modal) {
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !dom.modal.hidden) {
+      cerrarModal();
+    }
+
+    if (event.key === "Tab" && !dom.modal.hidden) {
+      controlarFocoModal(event);
+    }
+  });
+}
 
 async function iniciar() {
   try {
@@ -67,6 +86,14 @@ function normalizarSentencias(data) {
     return [];
   }
 
+  const esVerdadero = (valor) => {
+    if (typeof valor === "boolean") {
+      return valor;
+    }
+
+    return valor === "true" || valor === "1" || valor === 1;
+  };
+
   return data.slice(0, 19).map((item, index) => ({
     id: Number.isInteger(item.id) ? item.id : index + 1,
     nombre: textoSeguro(item.nombre, `Sentencia ${index + 1}`),
@@ -84,21 +111,25 @@ function normalizarSentencias(data) {
       item.urlDocumentoCumplimientoPendiente,
     ),
     parrafos: textoSeguro(item.parrafos, "Párrafos pendientes de completar."),
+    busqueda: esVerdadero(item.busqueda),
+    investigacion: esVerdadero(item.investigacion),
   }));
 }
 
 function renderizarListado(sentencias) {
-  limpiarElemento(dom.lista);
-  dom.contador.textContent = `${sentencias.length} sentencias`;
+  const visibles = obtenerSentenciasFiltradas(sentencias, state.filtroActivo);
 
-  if (sentencias.length === 0) {
-    mostrarError("No hay sentencias registradas en el JSON.");
+  limpiarElemento(dom.lista);
+  dom.contador.textContent = `${visibles.length} sentencias`;
+
+  if (visibles.length === 0) {
+    mostrarError("No hay sentencias registradas con este filtro.");
     return;
   }
 
   const fragment = document.createDocumentFragment();
 
-  sentencias.forEach((sentencia, index) => {
+  visibles.forEach((sentencia, index) => {
     const card = document.createElement("article");
     card.className = "card";
     card.style.setProperty("--card-index", String(index));
@@ -115,7 +146,28 @@ function renderizarListado(sentencias) {
     date.className = "card-date";
     date.textContent = `Fecha: ${sentencia.fecha}`;
 
-    titleWrapper.append(title, date);
+    const badges = document.createElement("div");
+    badges.className = "card-badges";
+
+    if (sentencia.busqueda) {
+      const badgeBusqueda = document.createElement("span");
+      badgeBusqueda.className = "card-badge";
+      badgeBusqueda.textContent = "Búsqueda";
+      badges.append(badgeBusqueda);
+    }
+
+    if (sentencia.investigacion) {
+      const badgeInvestigacion = document.createElement("span");
+      badgeInvestigacion.className = "card-badge";
+      badgeInvestigacion.textContent = "Investigación";
+      badges.append(badgeInvestigacion);
+    }
+
+    if (badges.children.length > 0) {
+      titleWrapper.append(title, date, badges);
+    } else {
+      titleWrapper.append(title, date);
+    }
 
     const number = document.createElement("span");
     number.className = "card-number";
@@ -144,6 +196,31 @@ function renderizarListado(sentencias) {
   dom.lista.append(fragment);
 }
 
+function aplicarFiltro(filtro) {
+  state.filtroActivo =
+    filtro === "busqueda" || filtro === "investigacion" ? filtro : "todos";
+
+  dom.filtros.forEach((boton) => {
+    const activo = boton.dataset.filter === state.filtroActivo;
+    boton.classList.toggle("is-active", activo);
+    boton.setAttribute("aria-pressed", String(activo));
+  });
+
+  renderizarListado(state.sentencias);
+}
+
+function obtenerSentenciasFiltradas(sentencias, filtro) {
+  if (filtro === "busqueda") {
+    return sentencias.filter((sentencia) => sentencia.busqueda);
+  }
+
+  if (filtro === "investigacion") {
+    return sentencias.filter((sentencia) => sentencia.investigacion);
+  }
+
+  return sentencias;
+}
+
 function abrirModal(sentenciaId) {
   const sentencia = state.sentencias.find((item) => item.id === sentenciaId);
 
@@ -155,6 +232,22 @@ function abrirModal(sentenciaId) {
 
   dom.titulo.textContent = sentencia.nombre;
   dom.fecha.textContent = `Fecha: ${sentencia.fecha}`;
+  limpiarElemento(dom.badges);
+
+  if (sentencia.busqueda) {
+    const badgeBusqueda = document.createElement("span");
+    badgeBusqueda.className = "modal-badge";
+    badgeBusqueda.textContent = "Búsqueda";
+    dom.badges.append(badgeBusqueda);
+  }
+
+  if (sentencia.investigacion) {
+    const badgeInvestigacion = document.createElement("span");
+    badgeInvestigacion.className = "modal-badge";
+    badgeInvestigacion.textContent = "Investigación";
+    dom.badges.append(badgeInvestigacion);
+  }
+
   dom.descripcion.textContent = sentencia.resumen;
   dom.medida.textContent = sentencia.medidaCumplimientoBusqueda;
 
@@ -234,8 +327,9 @@ function textoSeguro(valor, respaldo) {
     return respaldo;
   }
 
-  const limpio = valor.trim();
-  return limpio.length > 0 ? limpio : respaldo;
+  const limpio = valor.replace(/[\u0000-\u001F\u007F]/g, " ").trim();
+
+  return limpio.length > 0 ? limpio.slice(0, 500) : respaldo;
 }
 
 function urlSegura(valor) {
